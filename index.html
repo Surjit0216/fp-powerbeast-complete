@@ -851,6 +851,31 @@
         .required {
             color: var(--danger);
         }
+
+        .telegram-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, #0088cc 0%, #229ED9 100%);
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.4);
+        }
+
+        .telegram-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 136, 204, 0.6);
+        }
+
+        .telegram-icon {
+            font-size: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -1194,9 +1219,9 @@
                     <span>WhatsApp Support</span>
                 </a>
 
-                <a href="https://t.me/+BO07VJdP_mxkMmRl" class="contact-btn" target="_blank">
+                <a href="https://t.me/FP_Beast" class="contact-btn" target="_blank">
                     <span class="contact-icon">✈️</span>
-                    <span>Telegram Channel</span>
+                    <span>Telegram Chat</span>
                 </a>
 
                 <a href="mailto:maansingh0216@gmail.com" class="contact-btn">
@@ -1320,8 +1345,9 @@
 
                 <p style="margin: 2rem 0;">Check your email for access instructions. You'll receive TradingView invite within 24 hours.</p>
                 
-                <a href="#" id="telegramLink" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
-                    Join Telegram Community
+                <a href="#" id="telegramLink" class="telegram-btn" style="width: 100%; margin-bottom: 1rem;" target="_blank">
+                    <span class="telegram-icon">✈️</span>
+                    <span>Message on Telegram</span>
                 </a>
 
                 <button class="btn btn-secondary" onclick="closeSuccessModal()" style="width: 100%;">
@@ -1335,7 +1361,7 @@
         // Configuration
         const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // Replace with your Razorpay key
         const API_BASE_URL = 'https://your-backend-api.com/api'; // Replace with your backend URL
-        const TELEGRAM_LINK = 'https://t.me/+BO07VJdP_mxkMmRl';
+        const TELEGRAM_USERNAME = 'FP_Beast';
 
         let currentPlanType = '';
         let currentPlanAmount = 0;
@@ -1390,7 +1416,7 @@
             spinner.classList.add('active');
             
             try {
-                // Send WhatsApp message
+                // Send WhatsApp message for trial request
                 const message = `Hi! I've started my 7-day free trial.
 
 Name: ${name}
@@ -1410,7 +1436,7 @@ Please grant me access to the FP PowerBeast Indicator.`;
                 document.getElementById('successEmail').textContent = email;
                 
                 const telegramMessage = `Hi! I had started 7-Day Free Trial and my TradingView username is ${tradingView}.`;
-                document.getElementById('telegramLink').href = `${TELEGRAM_LINK}?text=${encodeURIComponent(telegramMessage)}`;
+                document.getElementById('telegramLink').href = `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
                 
                 document.getElementById('successModal').classList.add('active');
             } catch (error) {
@@ -1464,68 +1490,17 @@ Please send me the payment link.`;
                     document.getElementById('successEmail').textContent = email;
                     
                     const telegramMessage = `Hi! I had purchased ${currentPlanName} and my TradingView username is ${tradingView}.`;
-                    document.getElementById('telegramLink').href = `${TELEGRAM_LINK}?text=${encodeURIComponent(telegramMessage)}`;
+                    document.getElementById('telegramLink').href = `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
                     
                     document.getElementById('successModal').classList.add('active');
                     
                     spinner.classList.remove('active');
                 }, 2000);
                 
-                // In production, use Razorpay:
-                /*
-                const options = {
-                    key: RAZORPAY_KEY,
-                    amount: totalAmount * 100,
-                    currency: 'INR',
-                    name: 'FP PowerBeast',
-                    description: currentPlanName,
-                    handler: function(response) {
-                        verifyPayment(response, tradingView, email, name);
-                    },
-                    prefill: {
-                        name: name,
-                        email: email,
-                        contact: phone
-                    },
-                    notes: {
-                        tradingview_username: tradingView,
-                        plan: currentPlanType
-                    },
-                    theme: {
-                        color: '#00e5cc'
-                    }
-                };
-                
-                const razorpay = new Razorpay(options);
-                razorpay.open();
-                spinner.classList.remove('active');
-                closePaymentModal();
-                */
-                
             } catch (error) {
                 console.error('Payment error:', error);
                 alert('Failed to initiate payment. Please try again or contact support.');
                 spinner.classList.remove('active');
-            }
-        }
-
-        // Verify Payment (for Razorpay integration)
-        async function verifyPayment(response, tradingView, email, name) {
-            try {
-                // Implement payment verification with your backend
-                // After successful verification, show success modal
-                
-                document.getElementById('successPlan').textContent = currentPlanName;
-                document.getElementById('successTradingView').textContent = tradingView;
-                document.getElementById('successEmail').textContent = email;
-                
-                const telegramMessage = `Hi! I had purchased ${currentPlanName} and my TradingView username is ${tradingView}.`;
-                document.getElementById('telegramLink').href = `${TELEGRAM_LINK}?text=${encodeURIComponent(telegramMessage)}`;
-                
-                document.getElementById('successModal').classList.add('active');
-            } catch (error) {
-                console.error('Verification error:', error);
-                alert('Payment received but verification failed. Our team will contact you shortly.');
             }
         }
 
