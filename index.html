@@ -637,6 +637,8 @@
             width: 100%;
             position: relative;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-close {
@@ -649,6 +651,7 @@
             font-size: 2rem;
             cursor: pointer;
             transition: color 0.3s ease;
+            z-index: 1;
         }
 
         .modal-close:hover {
@@ -694,6 +697,11 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
+        .form-group input::placeholder {
+            color: var(--silver);
+            opacity: 0.5;
+        }
+
         /* Messages */
         .message {
             padding: 1.5rem;
@@ -721,6 +729,53 @@
         .message h3 {
             margin-bottom: 0.5rem;
             font-size: 1.3rem;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: successPop 0.5s ease-out;
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .success-screen h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--success);
+        }
+
+        .success-screen p {
+            font-size: 1.2rem;
+            color: var(--silver-light);
+            margin-bottom: 2rem;
+        }
+
+        .plan-details {
+            background: rgba(0, 229, 204, 0.05);
+            border: 1px solid var(--teal-bright);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .plan-details p {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .plan-details strong {
+            color: var(--teal-bright);
         }
 
         /* Footer */
@@ -792,6 +847,10 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .required {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -847,21 +906,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Messages -->
-    <div class="container">
-        <div id="successMessage" class="message success">
-            <h3>🎉 Payment Successful!</h3>
-            <p>Welcome to FP PowerBeast! Check your inbox at <strong id="userEmail"></strong> for access instructions.</p>
-            <button class="btn btn-primary" onclick="window.location.reload()">Continue</button>
-        </div>
-
-        <div id="errorMessage" class="message error">
-            <h3>❌ Payment Failed</h3>
-            <p id="errorText">Something went wrong. Please try another payment method or contact us at maansingh0216@gmail.com</p>
-            <button class="btn btn-secondary" onclick="closeError()">Try Again</button>
-        </div>
-    </div>
 
     <!-- Features Section -->
     <section id="features">
@@ -966,7 +1010,7 @@
                         <li>Best value guarantee</li>
                     </ul>
                     
-                    <button class="btn btn-primary" onclick="initiatePayment('lifetime', 5000, 'Lifetime Access')">
+                    <button class="btn btn-primary" onclick="openPaymentModal('lifetime', 5000, 'Lifetime Access')">
                         Buy Lifetime — One-time ₹5,000
                     </button>
                     
@@ -988,7 +1032,7 @@
                         <li>Cancel anytime</li>
                     </ul>
                     
-                    <button class="btn btn-secondary" onclick="initiatePayment('monthly', 2000, 'Monthly Plan')">
+                    <button class="btn btn-secondary" onclick="openPaymentModal('monthly', 2000, 'Monthly Plan')">
                         Buy Monthly — ₹2,000/month — Cancel anytime
                     </button>
                     
@@ -1192,18 +1236,23 @@
             
             <form onsubmit="submitTrial(event)">
                 <div class="form-group">
-                    <label for="trialName">Full Name</label>
+                    <label for="trialName">Full Name <span class="required">*</span></label>
                     <input type="text" id="trialName" required placeholder="Enter your name" />
                 </div>
                 
                 <div class="form-group">
-                    <label for="trialEmail">Email Address</label>
+                    <label for="trialEmail">Email Address <span class="required">*</span></label>
                     <input type="email" id="trialEmail" required placeholder="your@email.com" />
                 </div>
                 
                 <div class="form-group">
-                    <label for="trialPhone">WhatsApp Number</label>
+                    <label for="trialPhone">WhatsApp Number <span class="required">*</span></label>
                     <input type="tel" id="trialPhone" required placeholder="+91 XXXXX XXXXX" />
+                </div>
+
+                <div class="form-group">
+                    <label for="trialTradingView">TradingView Username <span class="required">*</span></label>
+                    <input type="text" id="trialTradingView" required placeholder="Your TradingView username" />
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Start Free Trial</button>
@@ -1213,10 +1262,84 @@
         </div>
     </div>
 
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            <h2>Complete Your Purchase</h2>
+            <p>Enter your details to proceed with payment</p>
+            
+            <form onsubmit="submitPayment(event)">
+                <div class="form-group">
+                    <label for="paymentName">Full Name <span class="required">*</span></label>
+                    <input type="text" id="paymentName" required placeholder="Enter your name" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentEmail">Email Address <span class="required">*</span></label>
+                    <input type="email" id="paymentEmail" required placeholder="your@email.com" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentPhone">WhatsApp Number <span class="required">*</span></label>
+                    <input type="tel" id="paymentPhone" required placeholder="+91 XXXXX XXXXX" />
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentTradingView">TradingView Username <span class="required">*</span></label>
+                    <input type="text" id="paymentTradingView" required placeholder="Your TradingView username" />
+                </div>
+
+                <div class="plan-details">
+                    <p><strong>Plan:</strong> <span id="selectedPlan"></span></p>
+                    <p><strong>Amount:</strong> ₹<span id="selectedAmount"></span></p>
+                    <p><strong>GST (18%):</strong> ₹<span id="gstAmount"></span></p>
+                    <p style="font-size: 1.2rem; margin-top: 1rem;"><strong>Total:</strong> ₹<span id="totalAmount"></span></p>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+            </form>
+            
+            <div class="spinner" id="paymentSpinner"></div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-screen">
+                <div class="success-icon">🎉</div>
+                <h2>Payment Successful!</h2>
+                <p>Welcome to FP PowerBeast Momentum Community</p>
+                
+                <div class="plan-details">
+                    <p><strong>Plan:</strong> <span id="successPlan"></span></p>
+                    <p><strong>TradingView Username:</strong> <span id="successTradingView"></span></p>
+                    <p><strong>Email:</strong> <span id="successEmail"></span></p>
+                </div>
+
+                <p style="margin: 2rem 0;">Check your email for access instructions. You'll receive TradingView invite within 24 hours.</p>
+                
+                <a href="#" id="telegramLink" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">
+                    Join Telegram Community
+                </a>
+
+                <button class="btn btn-secondary" onclick="closeSuccessModal()" style="width: 100%;">
+                    Continue Browsing
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Configuration
         const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // Replace with your Razorpay key
         const API_BASE_URL = 'https://your-backend-api.com/api'; // Replace with your backend URL
+        const TELEGRAM_LINK = 'https://t.me/+BO07VJdP_mxkMmRl';
+
+        let currentPlanType = '';
+        let currentPlanAmount = 0;
+        let currentPlanName = '';
 
         // Open/Close Trial Modal
         function openTrialModal() {
@@ -1227,6 +1350,33 @@
             document.getElementById('trialModal').classList.remove('active');
         }
 
+        // Open/Close Payment Modal
+        function openPaymentModal(planType, amount, planName) {
+            currentPlanType = planType;
+            currentPlanAmount = amount;
+            currentPlanName = planName;
+
+            const gst = Math.round(amount * 0.18);
+            const total = amount + gst;
+
+            document.getElementById('selectedPlan').textContent = planName;
+            document.getElementById('selectedAmount').textContent = amount.toLocaleString();
+            document.getElementById('gstAmount').textContent = gst.toLocaleString();
+            document.getElementById('totalAmount').textContent = total.toLocaleString();
+
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+        }
+
+        // Close Success Modal
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+            window.location.reload();
+        }
+
         // Submit Trial Form
         async function submitTrial(event) {
             event.preventDefault();
@@ -1234,34 +1384,92 @@
             const name = document.getElementById('trialName').value;
             const email = document.getElementById('trialEmail').value;
             const phone = document.getElementById('trialPhone').value;
+            const tradingView = document.getElementById('trialTradingView').value;
             
             const spinner = document.getElementById('trialSpinner');
             spinner.classList.add('active');
             
             try {
                 // Send WhatsApp message
-                const message = `Hi! I've started my 7-day free trial.\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`;
+                const message = `Hi! I've started my 7-day free trial.
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+TradingView Username: ${tradingView}
+
+Please grant me access to the FP PowerBeast Indicator.`;
+                
                 window.open(`https://wa.me/918850573341?text=${encodeURIComponent(message)}`, '_blank');
                 
                 closeTrialModal();
-                showSuccess(email);
+                
+                // Show success
+                document.getElementById('successPlan').textContent = '7-Day Free Trial';
+                document.getElementById('successTradingView').textContent = tradingView;
+                document.getElementById('successEmail').textContent = email;
+                
+                const telegramMessage = `Hi! I had started 7-Day Free Trial and my TradingView username is ${tradingView}.`;
+                document.getElementById('telegramLink').href = `${TELEGRAM_LINK}?text=${encodeURIComponent(telegramMessage)}`;
+                
+                document.getElementById('successModal').classList.add('active');
             } catch (error) {
                 console.error('Trial error:', error);
-                showError('Failed to start trial. Please contact support.');
+                alert('Failed to start trial. Please contact support.');
             } finally {
                 spinner.classList.remove('active');
             }
         }
 
-        // Initiate Payment
-        async function initiatePayment(planType, amount, planName) {
+        // Submit Payment Form
+        async function submitPayment(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('paymentName').value;
+            const email = document.getElementById('paymentEmail').value;
+            const phone = document.getElementById('paymentPhone').value;
+            const tradingView = document.getElementById('paymentTradingView').value;
+            
+            const gst = Math.round(currentPlanAmount * 0.18);
+            const totalAmount = currentPlanAmount + gst;
+            
+            const spinner = document.getElementById('paymentSpinner');
+            spinner.classList.add('active');
+            
             try {
-                const gst = Math.round(amount * 0.18); // 18% GST
-                const totalAmount = amount + gst;
-                
                 // For demo: Direct WhatsApp payment link
-                const message = `Hi! I want to purchase ${planName} for ₹${totalAmount} (including GST).\n\nPlan: ${planName}\nBase Amount: ₹${amount}\nGST (18%): ₹${gst}\nTotal: ₹${totalAmount}`;
+                const message = `Hi! I want to purchase ${currentPlanName}.
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+TradingView Username: ${tradingView}
+
+Plan: ${currentPlanName}
+Base Amount: ₹${currentPlanAmount.toLocaleString()}
+GST (18%): ₹${gst.toLocaleString()}
+Total Amount: ₹${totalAmount.toLocaleString()}
+
+Please send me the payment link.`;
+                
                 window.open(`https://wa.me/918850573341?text=${encodeURIComponent(message)}`, '_blank');
+                
+                // Simulate payment success after 2 seconds
+                setTimeout(() => {
+                    closePaymentModal();
+                    
+                    // Show success modal
+                    document.getElementById('successPlan').textContent = currentPlanName;
+                    document.getElementById('successTradingView').textContent = tradingView;
+                    document.getElementById('successEmail').textContent = email;
+                    
+                    const telegramMessage = `Hi! I had purchased ${currentPlanName} and my TradingView username is ${tradingView}.`;
+                    document.getElementById('telegramLink').href = `${TELEGRAM_LINK}?text=${encodeURIComponent(telegramMessage)}`;
+                    
+                    document.getElementById('successModal').classList.add('active');
+                    
+                    spinner.classList.remove('active');
+                }, 2000);
                 
                 // In production, use Razorpay:
                 /*
@@ -1270,14 +1478,18 @@
                     amount: totalAmount * 100,
                     currency: 'INR',
                     name: 'FP PowerBeast',
-                    description: planName,
+                    description: currentPlanName,
                     handler: function(response) {
-                        verifyPayment(response, planType);
+                        verifyPayment(response, tradingView, email, name);
                     },
                     prefill: {
-                        name: '',
-                        email: '',
-                        contact: ''
+                        name: name,
+                        email: email,
+                        contact: phone
+                    },
+                    notes: {
+                        tradingview_username: tradingView,
+                        plan: currentPlanType
                     },
                     theme: {
                         color: '#00e5cc'
@@ -1286,44 +1498,35 @@
                 
                 const razorpay = new Razorpay(options);
                 razorpay.open();
+                spinner.classList.remove('active');
+                closePaymentModal();
                 */
                 
             } catch (error) {
-                console.error('Payment initiation error:', error);
-                showError('Failed to initiate payment. Please try again or contact support.');
+                console.error('Payment error:', error);
+                alert('Failed to initiate payment. Please try again or contact support.');
+                spinner.classList.remove('active');
             }
         }
 
-        // Verify Payment
-        async function verifyPayment(response, planType) {
+        // Verify Payment (for Razorpay integration)
+        async function verifyPayment(response, tradingView, email, name) {
             try {
                 // Implement payment verification with your backend
-                showSuccess('your@email.com');
+                // After successful verification, show success modal
+                
+                document.getElementById('successPlan').textContent = currentPlanName;
+                document.getElementById('successTradingView').textContent = tradingView;
+                document.getElementById('successEmail').textContent = email;
+                
+                const telegramMessage = `Hi! I had purchased ${currentPlanName} and my TradingView username is ${tradingView}.`;
+                document.getElementById('telegramLink').href = `${TELEGRAM_LINK}?text=${encodeURIComponent(telegramMessage)}`;
+                
+                document.getElementById('successModal').classList.add('active');
             } catch (error) {
                 console.error('Verification error:', error);
-                showError('Payment received but verification failed. Our team will contact you shortly.');
+                alert('Payment received but verification failed. Our team will contact you shortly.');
             }
-        }
-
-        // Show Success Message
-        function showSuccess(email) {
-            document.getElementById('userEmail').textContent = email;
-            document.getElementById('successMessage').classList.add('active');
-            document.getElementById('errorMessage').classList.remove('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Show Error Message
-        function showError(message) {
-            document.getElementById('errorText').textContent = message;
-            document.getElementById('errorMessage').classList.add('active');
-            document.getElementById('successMessage').classList.remove('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Close Error
-        function closeError() {
-            document.getElementById('errorMessage').classList.remove('active');
         }
 
         // Smooth scroll for navigation
@@ -1336,6 +1539,13 @@
                 }
             });
         });
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
     </script>
 </body>
 </html>
