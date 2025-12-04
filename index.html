@@ -702,35 +702,6 @@
             opacity: 0.5;
         }
 
-        /* Messages */
-        .message {
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            display: none;
-        }
-
-        .message.active {
-            display: block;
-        }
-
-        .message.success {
-            background: rgba(0, 255, 136, 0.1);
-            border: 2px solid var(--success);
-            color: var(--success);
-        }
-
-        .message.error {
-            background: rgba(255, 51, 102, 0.1);
-            border: 2px solid var(--danger);
-            color: var(--danger);
-        }
-
-        .message h3 {
-            margin-bottom: 0.5rem;
-            font-size: 1.3rem;
-        }
-
         /* Success Screen */
         .success-screen {
             text-align: center;
@@ -875,6 +846,13 @@
 
         .telegram-icon {
             font-size: 1.5rem;
+        }
+
+        .gst-note {
+            font-size: 0.9rem;
+            color: var(--silver);
+            font-style: italic;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
@@ -1024,19 +1002,20 @@
                     <h3 class="plan-name">Lifetime Access</h3>
                     <div class="price">₹5,000</div>
                     <p class="price-period">One-time payment</p>
+                    <p class="gst-note">(Inclusive of all taxes)</p>
                     
                     <ul class="features-list">
                         <li>Lifetime indicator access</li>
                         <li>All features forever</li>
                         <li>Free updates included</li>
                         <li>Priority support</li>
-                        <li>WhatsApp community</li>
+                        <li>Telegram community</li>
                         <li>One-time payment</li>
                         <li>Best value guarantee</li>
                     </ul>
                     
                     <button class="btn btn-primary" onclick="openPaymentModal('lifetime', 5000, 'Lifetime Access')">
-                        Buy Lifetime — One-time ₹5,000
+                        Buy Lifetime — ₹5,000
                     </button>
                     
                     <p class="payment-note">Secure payments via Razorpay. UPI | Card | Netbanking accepted.</p>
@@ -1047,6 +1026,7 @@
                     <h3 class="plan-name">Monthly Plan</h3>
                     <div class="price">₹2,000</div>
                     <p class="price-period">per month</p>
+                    <p class="gst-note">(Inclusive of all taxes)</p>
                     
                     <ul class="features-list">
                         <li>Full indicator access</li>
@@ -1058,7 +1038,7 @@
                     </ul>
                     
                     <button class="btn btn-secondary" onclick="openPaymentModal('monthly', 2000, 'Monthly Plan')">
-                        Buy Monthly — ₹2,000/month — Cancel anytime
+                        Buy Monthly — ₹2,000/month
                     </button>
                     
                     <p class="payment-note">Secure payments via Razorpay. UPI | Card | Netbanking accepted.</p>
@@ -1214,11 +1194,6 @@
             <p class="section-subtitle">We're here to help you succeed. Reach out anytime!</p>
             
             <div class="contact-buttons">
-                <a href="https://wa.me/918850573341?text=Hi%2C%20I%20need%20help%20with%20FP%20PowerBeast%20Indicator" class="contact-btn" target="_blank">
-                    <span class="contact-icon">📱</span>
-                    <span>WhatsApp Support</span>
-                </a>
-
                 <a href="https://t.me/FP_Beast" class="contact-btn" target="_blank">
                     <span class="contact-icon">✈️</span>
                     <span>Telegram Chat</span>
@@ -1271,7 +1246,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="trialPhone">WhatsApp Number <span class="required">*</span></label>
+                    <label for="trialPhone">Phone Number <span class="required">*</span></label>
                     <input type="tel" id="trialPhone" required placeholder="+91 XXXXX XXXXX" />
                 </div>
 
@@ -1306,7 +1281,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="paymentPhone">WhatsApp Number <span class="required">*</span></label>
+                    <label for="paymentPhone">Phone Number <span class="required">*</span></label>
                     <input type="tel" id="paymentPhone" required placeholder="+91 XXXXX XXXXX" />
                 </div>
 
@@ -1317,9 +1292,8 @@
 
                 <div class="plan-details">
                     <p><strong>Plan:</strong> <span id="selectedPlan"></span></p>
-                    <p><strong>Amount:</strong> ₹<span id="selectedAmount"></span></p>
-                    <p><strong>GST (18%):</strong> ₹<span id="gstAmount"></span></p>
-                    <p style="font-size: 1.2rem; margin-top: 1rem;"><strong>Total:</strong> ₹<span id="totalAmount"></span></p>
+                    <p style="font-size: 1.3rem; margin-top: 1rem;"><strong>Total Amount:</strong> ₹<span id="totalAmount"></span></p>
+                    <p class="gst-note">(Inclusive of all taxes)</p>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Proceed to Payment</button>
@@ -1338,9 +1312,12 @@
                 <p>Welcome to FP PowerBeast Momentum Community</p>
                 
                 <div class="plan-details">
-                    <p><strong>Plan:</strong> <span id="successPlan"></span></p>
-                    <p><strong>TradingView Username:</strong> <span id="successTradingView"></span></p>
+                    <p><strong>Name:</strong> <span id="successName"></span></p>
                     <p><strong>Email:</strong> <span id="successEmail"></span></p>
+                    <p><strong>Phone:</strong> <span id="successPhone"></span></p>
+                    <p><strong>TradingView Username:</strong> <span id="successTradingView"></span></p>
+                    <p><strong>Plan:</strong> <span id="successPlan"></span></p>
+                    <p><strong>Amount Paid:</strong> ₹<span id="successAmount"></span></p>
                 </div>
 
                 <p style="margin: 2rem 0;">Check your email for access instructions. You'll receive TradingView invite within 24 hours.</p>
@@ -1358,14 +1335,14 @@
     </div>
 
     <script>
-        // Configuration
+        // Configuration - REPLACE THESE WITH YOUR ACTUAL VALUES
         const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE'; // Replace with your Razorpay key
-        const API_BASE_URL = 'https://your-backend-api.com/api'; // Replace with your backend URL
         const TELEGRAM_USERNAME = 'FP_Beast';
 
         let currentPlanType = '';
         let currentPlanAmount = 0;
         let currentPlanName = '';
+        let userDetails = {};
 
         // Open/Close Trial Modal
         function openTrialModal() {
@@ -1382,13 +1359,8 @@
             currentPlanAmount = amount;
             currentPlanName = planName;
 
-            const gst = Math.round(amount * 0.18);
-            const total = amount + gst;
-
             document.getElementById('selectedPlan').textContent = planName;
-            document.getElementById('selectedAmount').textContent = amount.toLocaleString();
-            document.getElementById('gstAmount').textContent = gst.toLocaleString();
-            document.getElementById('totalAmount').textContent = total.toLocaleString();
+            document.getElementById('totalAmount').textContent = amount.toLocaleString();
 
             document.getElementById('paymentModal').classList.add('active');
         }
@@ -1416,26 +1388,30 @@
             spinner.classList.add('active');
             
             try {
-                // Send WhatsApp message for trial request
-                const message = `Hi! I've started my 7-day free trial.
+                // Store user details
+                userDetails = { name, email, phone, tradingView };
+                
+                closeTrialModal();
+                
+                // Show success
+                document.getElementById('successName').textContent = name;
+                document.getElementById('successEmail').textContent = email;
+                document.getElementById('successPhone').textContent = phone;
+                document.getElementById('successTradingView').textContent = tradingView;
+                document.getElementById('successPlan').textContent = '7-Day Free Trial';
+                document.getElementById('successAmount').textContent = '0';
+                
+                const telegramMessage = `Hi! I had started 7-Day Free Trial.
 
 Name: ${name}
 Email: ${email}
 Phone: ${phone}
 TradingView Username: ${tradingView}
+Plan: 7-Day Free Trial
+Amount: ₹0
 
 Please grant me access to the FP PowerBeast Indicator.`;
                 
-                window.open(`https://wa.me/918850573341?text=${encodeURIComponent(message)}`, '_blank');
-                
-                closeTrialModal();
-                
-                // Show success
-                document.getElementById('successPlan').textContent = '7-Day Free Trial';
-                document.getElementById('successTradingView').textContent = tradingView;
-                document.getElementById('successEmail').textContent = email;
-                
-                const telegramMessage = `Hi! I had started 7-Day Free Trial and my TradingView username is ${tradingView}.`;
                 document.getElementById('telegramLink').href = `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
                 
                 document.getElementById('successModal').classList.add('active');
@@ -1456,51 +1432,108 @@ Please grant me access to the FP PowerBeast Indicator.`;
             const phone = document.getElementById('paymentPhone').value;
             const tradingView = document.getElementById('paymentTradingView').value;
             
-            const gst = Math.round(currentPlanAmount * 0.18);
-            const totalAmount = currentPlanAmount + gst;
+            // Store user details
+            userDetails = { name, email, phone, tradingView };
             
             const spinner = document.getElementById('paymentSpinner');
             spinner.classList.add('active');
             
             try {
-                // For demo: Direct WhatsApp payment link
-                const message = `Hi! I want to purchase ${currentPlanName}.
-
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-TradingView Username: ${tradingView}
-
-Plan: ${currentPlanName}
-Base Amount: ₹${currentPlanAmount.toLocaleString()}
-GST (18%): ₹${gst.toLocaleString()}
-Total Amount: ₹${totalAmount.toLocaleString()}
-
-Please send me the payment link.`;
+                // Initialize Razorpay
+                const options = {
+                    key: RAZORPAY_KEY,
+                    amount: currentPlanAmount * 100, // Convert to paise
+                    currency: 'INR',
+                    name: 'FP PowerBeast',
+                    description: currentPlanName,
+                    handler: function(response) {
+                        // Payment successful
+                        handlePaymentSuccess(response);
+                    },
+                    prefill: {
+                        name: name,
+                        email: email,
+                        contact: phone
+                    },
+                    notes: {
+                        tradingview_username: tradingView,
+                        plan: currentPlanType
+                    },
+                    theme: {
+                        color: '#00e5cc'
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            spinner.classList.remove('active');
+                        }
+                    }
+                };
                 
-                window.open(`https://wa.me/918850573341?text=${encodeURIComponent(message)}`, '_blank');
+                const razorpay = new Razorpay(options);
+                razorpay.open();
                 
-                // Simulate payment success after 2 seconds
-                setTimeout(() => {
-                    closePaymentModal();
-                    
-                    // Show success modal
-                    document.getElementById('successPlan').textContent = currentPlanName;
-                    document.getElementById('successTradingView').textContent = tradingView;
-                    document.getElementById('successEmail').textContent = email;
-                    
-                    const telegramMessage = `Hi! I had purchased ${currentPlanName} and my TradingView username is ${tradingView}.`;
-                    document.getElementById('telegramLink').href = `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
-                    
-                    document.getElementById('successModal').classList.add('active');
-                    
-                    spinner.classList.remove('active');
-                }, 2000);
+                closePaymentModal();
+                spinner.classList.remove('active');
                 
             } catch (error) {
                 console.error('Payment error:', error);
-                alert('Failed to initiate payment. Please try again or contact support.');
+                alert('Failed to initiate payment. Please try again or contact support at maansingh0216@gmail.com');
                 spinner.classList.remove('active');
+            }
+        }
+
+        // Handle Payment Success
+        function handlePaymentSuccess(response) {
+            // Show success modal
+            document.getElementById('successName').textContent = userDetails.name;
+            document.getElementById('successEmail').textContent = userDetails.email;
+            document.getElementById('successPhone').textContent = userDetails.phone;
+            document.getElementById('successTradingView').textContent = userDetails.tradingView;
+            document.getElementById('successPlan').textContent = currentPlanName;
+            document.getElementById('successAmount').textContent = currentPlanAmount.toLocaleString();
+            
+            const telegramMessage = `Hi! I had purchased ${currentPlanName}.
+
+Name: ${userDetails.name}
+Email: ${userDetails.email}
+Phone: ${userDetails.phone}
+TradingView Username: ${userDetails.tradingView}
+Plan: ${currentPlanName}
+Amount Paid: ₹${currentPlanAmount.toLocaleString()}
+Payment ID: ${response.razorpay_payment_id}
+
+Please grant me access to the FP PowerBeast Indicator.`;
+            
+            document.getElementById('telegramLink').href = `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(telegramMessage)}`;
+            
+            document.getElementById('successModal').classList.add('active');
+            
+            // Optional: Send payment details to your backend for verification
+            // verifyPayment(response);
+        }
+
+        // Optional: Verify payment on backend
+        async function verifyPayment(response) {
+            try {
+                // Send to your backend for verification
+                const verifyResponse = await fetch('YOUR_BACKEND_URL/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        userDetails: userDetails,
+                        plan: currentPlanType,
+                        amount: currentPlanAmount
+                    })
+                });
+                
+                if (verifyResponse.ok) {
+                    console.log('Payment verified successfully');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
             }
         }
 
