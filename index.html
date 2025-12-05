@@ -169,6 +169,26 @@
             box-shadow: 0 5px 20px rgba(0, 229, 204, 0.4);
         }
 
+        .admin-login-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--silver);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(0, 229, 204, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .admin-login-btn:hover {
+            background: rgba(0, 229, 204, 0.1);
+            border-color: var(--teal-bright);
+            color: var(--teal-bright);
+            transform: translateY(-2px);
+        }
+
         /* Hero Section */
         .hero {
             position: relative;
@@ -759,6 +779,17 @@
             font-style: italic;
             margin-top: 0.5rem;
         }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -786,6 +817,7 @@
             <a href="#faq">FAQ</a>
             <a href="#contact">Contact</a>
             <a href="#pricing" class="nav-cta">Get Started</a>
+            <button class="admin-login-btn" onclick="openAdminLogin()">🔐 Admin</button>
         </div>
     </nav>
 
@@ -1132,6 +1164,25 @@
         </div>
     </footer>
 
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAdminLogin()">&times;</button>
+            <h2>🔐 Admin Login</h2>
+            <p>Enter admin password to access dashboard</p>
+            
+            <form onsubmit="submitAdminLogin(event)">
+                <div class="form-group">
+                    <label for="adminPassword">Password <span class="required">*</span></label>
+                    <input type="password" id="adminPassword" required placeholder="Enter admin password" />
+                    <p class="error-message" id="adminError">Incorrect password. Please try again.</p>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Access Dashboard</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Trial Modal -->
     <div id="trialModal" class="modal">
         <div class="modal-content">
@@ -1207,6 +1258,7 @@
     <script>
         // Configuration
         const TELEGRAM_USERNAME = 'FP_Beast';
+        const ADMIN_PASSWORD = 'FPBeast2024Admin';
         
         // Razorpay Payment Links
         const PAYMENT_LINKS = {
@@ -1218,6 +1270,33 @@
         let currentPlanAmount = 0;
         let currentPlanName = '';
         let userDetails = {};
+
+        // Admin Login Functions
+        function openAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('active');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminError').classList.remove('active');
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').classList.remove('active');
+        }
+
+        function submitAdminLogin(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                // Store admin session
+                sessionStorage.setItem('fpbeast_admin', 'true');
+                // Redirect to admin dashboard
+                window.location.href = 'admin.html';
+            } else {
+                document.getElementById('adminError').classList.add('active');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
 
         // Open/Close Trial Modal
         function openTrialModal() {
@@ -1253,12 +1332,25 @@
             const phone = document.getElementById('trialPhone').value;
             const tradingView = document.getElementById('trialTradingView').value;
             
-            // Store user details
-            userDetails = { name, email, phone, tradingView };
+            // Store in localStorage for admin dashboard
+            const orders = JSON.parse(localStorage.getItem('fpbeast_orders') || '[]');
+            orders.push({
+                id: Date.now(),
+                type: 'trial',
+                name,
+                email,
+                phone,
+                tradingView,
+                plan: '7-Day Free Trial',
+                amount: 0,
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('fpbeast_orders', JSON.stringify(orders));
             
             closeTrialModal();
             
-            // Redirect to Telegram with pre-filled message
+            // Redirect to Telegram
             const telegramMessage = `Hi! I want to start 7-Day Free Trial.
 
 Name: ${name}
@@ -1281,37 +1373,53 @@ Please grant me access to the FP PowerBeast Indicator.`;
             const phone = document.getElementById('paymentPhone').value;
             const tradingView = document.getElementById('paymentTradingView').value;
             
-            // Store user details in localStorage for after payment
+            // Store purchase data
             const purchaseData = {
+                id: Date.now(),
+                type: 'purchase',
                 name,
                 email,
                 phone,
                 tradingView,
                 plan: currentPlanName,
                 amount: currentPlanAmount,
-                timestamp: new Date().toISOString()
+                status: 'pending',
+                date: new Date().toISOString()
             };
             
             localStorage.setItem('fpbeast_purchase', JSON.stringify(purchaseData));
             
+            // Store in orders
+            const orders = JSON.parse(localStorage.getItem('fpbeast_orders') || '[]');
+            orders.push(purchaseData);
+            localStorage.setItem('fpbeast_orders', JSON.stringify(orders));
+            
             closePaymentModal();
             
-            // Redirect to Razorpay Payment Link
+            // Redirect to Razorpay
             const paymentLink = PAYMENT_LINKS[currentPlanType];
             window.location.href = paymentLink;
         }
 
-        // Check if user just completed payment (coming back from Razorpay)
+        // Check if user just completed payment
         window.addEventListener('load', function() {
             const purchaseData = localStorage.getItem('fpbeast_purchase');
             
             if (purchaseData && window.location.search.includes('payment')) {
                 const data = JSON.parse(purchaseData);
                 
-                // Clear the stored data
+                // Update order status
+                const orders = JSON.parse(localStorage.getItem('fpbeast_orders') || '[]');
+                const orderIndex = orders.findIndex(o => o.id === data.id);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = 'completed';
+                    localStorage.setItem('fpbeast_orders', JSON.stringify(orders));
+                }
+                
+                // Clear purchase data
                 localStorage.removeItem('fpbeast_purchase');
                 
-                // Redirect to Telegram with purchase details
+                // Redirect to Telegram
                 const telegramMessage = `Hi! I have completed the payment for ${data.plan}.
 
 Name: ${data.name}
@@ -1327,7 +1435,7 @@ Please grant me access to the FP PowerBeast Indicator.`;
             }
         });
 
-        // Smooth scroll for navigation
+        // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
