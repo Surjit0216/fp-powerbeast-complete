@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FP PowerBeast - Admin Dashboard</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy-dark: #0a1628;
+            --navy-mid: #132a4a;
+            --navy-light: #1e3a5f;
+            --teal-bright: #00e5cc;
+            --teal-electric: #00fff5;
+            --silver: #c0c8d4;
+            --silver-light: #e8ecf1;
+            --white: #ffffff;
+            --success: #00ff88;
+            --danger: #ff3366;
+            --warning: #ffaa00;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-mid) 50%, var(--navy-light) 100%);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 229, 204, 0.2);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .dashboard-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--teal-electric) 0%, var(--teal-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logout-btn {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--danger);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid var(--danger);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(19, 42, 74, 0.8) 0%, rgba(30, 58, 95, 0.6) 100%);
+            border: 1px solid rgba(0, 229, 204, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-label {
+            color: var(--silver);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--teal-bright);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, var(--teal-bright) 0%, var(--teal-electric) 100%);
+            color: var(--navy-dark);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 229, 204, 0.4);
+        }
+
+        .table-container {
+            background: rgba(19, 42, 74, 0.6);
+            border: 1px solid rgba(0, 229, 204, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            overflow-x: auto;
+            backdrop-filter: blur(10px);
+            margin-bottom: 3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(0, 229, 204, 0.1);
+            color: var(--teal-bright);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid rgba(0, 229, 204, 0.3);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--silver-light);
+        }
+
+        tr:hover {
+            background: rgba(0, 229, 204, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-completed {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-pending {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--silver);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .table-container {
+                padding: 1rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">🔐 Admin Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value" id="totalOrders">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Completed Orders</div>
+                <div class="stat-value" id="completedOrders">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Pending Orders</div>
+                <div class="stat-value" id="pendingOrders">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" id="totalRevenue">₹0</div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="section-header">
+            <h2 class="section-title">All Orders</h2>
+            <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+        </div>
+
+        <div class="table-container">
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>TradingView</th>
+                        <th>Plan</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Orders will be populated here -->
+                </tbody>
+            </table>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📦</div>
+                <h3>No Orders Yet</h3>
+                <p>Orders will appear here once customers start purchasing.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if admin is logged in
+        if (sessionStorage.getItem('fpbeast_admin') !== 'true') {
+            window.location.href = 'index.html';
+        }
+
+        // Load and display orders
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('fpbeast_orders') || '[]');
+            
+            if (orders.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('ordersTable').style.display = 'none';
+                return;
+            }
+
+            // Calculate stats
+            const totalOrders = orders.length;
+            const completedOrders = orders.filter(o => o.status === 'completed').length;
+            const pendingOrders = orders.filter(o => o.status === 'pending').length;
+            const totalRevenue = orders
+                .filter(o => o.status === 'completed')
+                .reduce((sum, o) => sum + o.amount, 0);
+
+            // Update stats
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('completedOrders').textContent = completedOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toLocaleString();
+
+            // Populate table
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+
+            // Sort by date (newest first)
+            orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                
+                const date = new Date(order.date);
+                const formattedDate = date.toLocaleDateString('en-IN') + ' ' + date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${formattedDate}</td>
+                    <td>${order.name}</td>
+                    <td>${order.email}</td>
+                    <td>${order.phone}</td>
+                    <td>${order.tradingView}</td>
+                    <td>${order.plan}</td>
+                    <td>₹${order.amount.toLocaleString()}</td>
+                    <td><span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const orders = JSON.parse(localStorage.getItem('fpbeast_orders') || '[]');
+            
+            if (orders.length === 0) {
+                alert('No orders to export');
+                return;
+            }
+
+            // Create CSV content
+            const headers = ['Order ID', 'Date', 'Name', 'Email', 'Phone', 'TradingView Username', 'Plan', 'Amount', 'Status'];
+            const csvRows = [headers.join(',')];
+
+            orders.forEach(order => {
+                const date = new Date(order.date).toLocaleString('en-IN');
+                const row = [
+                    order.id,
+                    `"${date}"`,
+                    `"${order.name}"`,
+                    `"${order.email}"`,
+                    `"${order.phone}"`,
+                    `"${order.tradingView}"`,
+                    `"${order.plan}"`,
+                    order.amount,
+                    order.status
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fpbeast-orders-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('fpbeast_admin');
+            window.location.href = 'index.html';
+        }
+
+        // Load orders on page load
+        loadOrders();
+
+        // Refresh orders every 30 seconds
+        setInterval(loadOrders, 30000);
+    </script>
+</body>
+</html>
